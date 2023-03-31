@@ -1,5 +1,8 @@
 name: Create Map
-on: push
+on:
+  push:
+  schedule:
+    - cron: '0 2 * * 6'
 jobs:
   create:
     runs-on: ubuntu-latest
