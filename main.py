@@ -25,12 +25,13 @@ def collect(token, user):
             for dependent in package["public_dependents"]:
                 repo_user = gh.get_user(dependent["name"].split("/")[0])
                 if repo_user.location is not None:
-                    if repo_user.location not in locations:
-                        locations.add(repo_user.location)
-                        location = do_geocode(nn, repo_user.location)
-                        if location is not None:
-                            loc = Location(repo_user.location, location.latitude, location.longitude)
-                            location_details.add(loc)
+                    if any(c.isalpha() for c in repo_user.location):
+                        if repo_user.location not in locations:
+                            locations.add(repo_user.location)
+                            location = do_geocode(nn, repo_user.location)
+                            if location is not None:
+                                loc = Location(repo_user.location, location.latitude, location.longitude)
+                                location_details.add(loc)
 
     features = []
     for location in location_details:
@@ -48,7 +49,7 @@ def do_geocode(api, address, attempt=1, max_attempts=5):
     except GeocoderTimedOut:
         if attempt <= max_attempts:
             time.sleep(1)
-            return do_geocode(api, address, attempt=attempt+1)
+            return do_geocode(api, address, attempt=attempt + 1)
         raise
 
 
