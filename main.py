@@ -17,7 +17,6 @@ def collect(token, user):
     repos = base_user.get_repos()
     locations = set()
     location_details = set()
-    wait_until = datetime.now() - timedelta(seconds=1)
     for repo in repos:
         print("checking: " + repo.name)
         gh_deps_info = GithubDependentsInfo(repo.full_name)
@@ -28,10 +27,7 @@ def collect(token, user):
                 if repo_user.location is not None:
                     if repo_user.location not in locations:
                         locations.add(repo_user.location)
-                        if wait_until >= datetime.now():
-                            time.sleep(1)
-                        wait_until = datetime.now() + timedelta(seconds=1)
-                        location = nn.geocode(repo_user.location)
+                        location = do_geocode(nn, repo_user.location)
                         if location is not None:
                             loc = Location(repo_user.location, location.latitude, location.longitude)
                             location_details.add(loc)
@@ -44,6 +40,16 @@ def collect(token, user):
     f = open("global_usage.json", "w")
     f.write(dumps(FeatureCollection(features)))
     f.close()
+
+
+def do_geocode(api, address, attempt=1, max_attempts=5):
+    try:
+        return api.geocode(address)
+    except GeocoderTimedOut:
+        if attempt <= max_attempts:
+            time.sleep(1)
+            return do_geocode(api, address, attempt=attempt+1)
+        raise
 
 
 class Location:
