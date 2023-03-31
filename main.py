@@ -1,11 +1,8 @@
 import os
-import time
-from datetime import datetime, timedelta
 
-import geopy
 from geojson import Point, Feature, dumps, FeatureCollection
 from geopy import Nominatim
-from geopy.exc import GeocoderTimedOut
+from geopy.exc import GeopyError
 from github import Github
 from github_dependents_info import GithubDependentsInfo
 
@@ -28,7 +25,11 @@ def collect(token, user):
                     if any(c.isalpha() for c in repo_user.location):
                         if repo_user.location not in locations:
                             locations.add(repo_user.location)
-                            location = do_geocode(nn, repo_user.location)
+                            try:
+                                location = nn.geocode(repo_user.location)
+                            except GeopyError:
+                                print("ignoring:" + repo_user.location)
+                                location = None
                             if location is not None:
                                 loc = Location(repo_user.location, location.latitude, location.longitude)
                                 location_details.add(loc)
@@ -41,16 +42,6 @@ def collect(token, user):
     f = open("global_usage.json", "w")
     f.write(dumps(FeatureCollection(features)))
     f.close()
-
-
-def do_geocode(api, address, attempt=1, max_attempts=5):
-    try:
-        return api.geocode(address)
-    except GeocoderTimedOut:
-        if attempt <= max_attempts:
-            time.sleep(1)
-            return do_geocode(api, address, attempt=attempt + 1)
-        raise
 
 
 class Location:
