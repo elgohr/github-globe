@@ -1,17 +1,18 @@
 import os
+import time
 
 from geojson import Point, Feature, dumps, FeatureCollection
 from geopy import Nominatim
 from geopy.exc import GeopyError
-from github import Github
+from github import Github, RateLimitExceededException
 from github_dependents_info import GithubDependentsInfo
 
 
 def collect(token, user):
     gh = Github(login_or_token=token)
     nn = Nominatim(user_agent="github globe generator")
-    base_user = gh.get_user(user)
-    repos = base_user.get_repos()
+    base_user = get_user(gh, user)
+    repos = get_repos(base_user)
     locations = set()
     location_details = set()
     for repo in repos:
@@ -20,7 +21,7 @@ def collect(token, user):
         gh_deps_info.collect()
         for package in gh_deps_info.packages:
             for dependent in package["public_dependents"]:
-                repo_user = gh.get_user(dependent["name"].split("/")[0])
+                repo_user = get_user(gh, dependent["name"].split("/")[0])
                 if repo_user.location is not None:
                     if any(c.isalpha() for c in repo_user.location):
                         if repo_user.location not in locations:
@@ -44,11 +45,34 @@ def collect(token, user):
     f.close()
 
 
+def get_repos(base_user):
+    try:
+        return base_user.get_repos()
+    except RateLimitExceededException as e:
+        handle_rate_limit(e)
+        get_repos(base_user)
+
+
+def get_user(gh, user):
+    try:
+        return gh.get_user(user)
+    except RateLimitExceededException as e:
+        handle_rate_limit(e)
+        get_user(gh, user)
+
+
 class Location:
     def __init__(self, name, latitude, longitude):
         self.name = name
         self.latitude = latitude
         self.longitude = longitude
+
+
+def handle_rate_limit(e):
+    reset = int(e.headers["x-ratelimit-reset"])
+    wait_time_seconds = reset - int(time.time())
+    print(f'waiting {wait_time_seconds} seconds')
+    time.sleep(wait_time_seconds)
 
 
 if __name__ == '__main__':
