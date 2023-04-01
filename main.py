@@ -18,7 +18,7 @@ def collect(token, user):
     user_locations = {}
     location_details = set()
 
-    if os.path.isfile("global_usage.json"):
+    if os.path.exists("global_usage.json"):
         with open("global_usage.json", 'r') as data_file:
             features = FeatureCollection(loads(data_file.read())).get("features")
             if features is not None:
