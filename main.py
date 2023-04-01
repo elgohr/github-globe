@@ -78,7 +78,7 @@ def get_repos(base_user):
         return base_user.get_repos()
     except RateLimitExceededException as e:
         handle_rate_limit(e)
-        get_repos(base_user)
+        return get_repos(base_user)
 
 
 def get_user(gh, user):
@@ -86,7 +86,7 @@ def get_user(gh, user):
         return gh.get_user(user)
     except RateLimitExceededException as e:
         handle_rate_limit(e)
-        get_user(gh, user)
+        return get_user(gh, user)
 
 
 class Usage:
