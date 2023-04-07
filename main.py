@@ -56,9 +56,9 @@ def collect(gh_token, geo_token, user):
                                 geo_locations[location] = nn.geocode(location)
                             except GeopyError:
                                 print("ignoring:" + location)
-                        if location in geo_locations:
-                            u = Usage(user_name, location, geo_locations[location].latitude,
-                                      geo_locations[location].longitude)
+                        if location in geo_locations and geo_locations[location] is not None:
+                            geo_location = geo_locations[location]
+                            u = Usage(user_name, location, geo_location.latitude, geo_location.longitude)
                             location_details.add(u)
 
     features = []
