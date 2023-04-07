@@ -14,7 +14,7 @@ def collect(token, user):
     base_user = get_user(gh, user)
     repos = get_repos(base_user)
 
-    geoLocations = {}
+    geo_locations = {}
     user_locations = {}
     location_details = set()
 
@@ -33,7 +33,7 @@ def collect(token, user):
                             if geo is not None:
                                 coordinates = geo.get("coordinates")
                                 if len(coordinates) == 2:
-                                    geoLocations[name] = Point((coordinates[0], coordinates[1]))
+                                    geo_locations[name] = Point((coordinates[0], coordinates[1]))
 
     for repo in repos:
         print("checking: " + repo.name)
@@ -51,13 +51,13 @@ def collect(token, user):
                         location = repo_user.location
                 if location:
                     if any(c.isalpha() for c in location):
-                        if location not in geoLocations:
+                        if location not in geo_locations:
                             try:
-                                geoLocations[location] = nn.geocode(location)
+                                geo_locations[location] = nn.geocode(location)
                             except GeopyError:
                                 print("ignoring:" + location)
-                        if location in geoLocations:
-                            u = Usage(user_name, location, geoLocations[location].latitude, geoLocations[location].longitude)
+                        if location in geo_locations:
+                            u = Usage(user_name, location, geo_locations[location].latitude, geo_locations[location].longitude)
                             location_details.add(u)
 
     features = []
