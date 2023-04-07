@@ -14,7 +14,7 @@ def collect(token, user):
     base_user = get_user(gh, user)
     repos = get_repos(base_user)
 
-    locations = {}
+    geoLocations = {}
     user_locations = {}
     location_details = set()
 
@@ -33,7 +33,7 @@ def collect(token, user):
                             if geo is not None:
                                 coordinates = geo.get("coordinates")
                                 if len(coordinates) == 2:
-                                    locations[name] = Point((coordinates[0], coordinates[1]))
+                                    geoLocations[name] = Point((coordinates[0], coordinates[1]))
 
     for repo in repos:
         print("checking: " + repo.name)
@@ -50,16 +50,15 @@ def collect(token, user):
                     if repo_user.location is not None:
                         location = repo_user.location
                 if location:
-                    if any(c.isalpha() for c in repo_user.location):
-                        if repo_user.location not in locations:
+                    if any(c.isalpha() for c in location):
+                        if location not in geoLocations:
                             try:
-                                locations[repo_user.location] = nn.geocode(repo_user.location)
+                                geoLocations[location] = nn.geocode(location)
                             except GeopyError:
-                                print("ignoring:" + repo_user.location)
-                        if repo_user.location in locations:
-                            location = locations[repo_user.location]
-                            loc = Usage(user_name, repo_user.location, location.latitude, location.longitude)
-                            location_details.add(loc)
+                                print("ignoring:" + location)
+                        if location in geoLocations:
+                            u = Usage(user_name, location, geoLocations[location].latitude, geoLocations[location].longitude)
+                            location_details.add(u)
 
     features = []
     for usage in location_details:
