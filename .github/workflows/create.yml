@@ -22,6 +22,7 @@ jobs:
         run: pipenv install && pipenv run python main.py
         env:
           GH_TOKEN: ${{ secrets.TOKEN }}
+          TOM_TOM_TOKEN: ${{ secrets.TOM_TOM_TOKEN }}
           GH_USER: elgohr
       - name: Commit new map
         run: |

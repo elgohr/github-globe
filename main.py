@@ -2,15 +2,15 @@ import os
 import time
 
 from geojson import Point, Feature, dumps, FeatureCollection, loads
-from geopy import Nominatim
+from geopy import TomTom
 from geopy.exc import GeopyError
 from github import Github, RateLimitExceededException
 from github_dependents_info import GithubDependentsInfo
 
 
-def collect(token, user):
-    gh = Github(login_or_token=token)
-    nn = Nominatim(user_agent="github globe generator")
+def collect(gh_token, geo_token, user):
+    gh = Github(login_or_token=gh_token)
+    nn = TomTom(api_key=geo_token)
     base_user = get_user(gh, user)
     repos = get_repos(base_user)
 
@@ -57,7 +57,8 @@ def collect(token, user):
                             except GeopyError:
                                 print("ignoring:" + location)
                         if location in geo_locations:
-                            u = Usage(user_name, location, geo_locations[location].latitude, geo_locations[location].longitude)
+                            u = Usage(user_name, location, geo_locations[location].latitude,
+                                      geo_locations[location].longitude)
                             location_details.add(u)
 
     features = []
@@ -104,4 +105,4 @@ def handle_rate_limit(e):
 
 
 if __name__ == '__main__':
-    collect(os.getenv('GH_TOKEN'), os.getenv('GH_USER'))
+    collect(os.getenv('GH_TOKEN'), os.getenv('TOM_TOM_TOKEN'), os.getenv('GH_USER'))
