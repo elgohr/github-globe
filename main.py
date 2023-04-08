@@ -98,10 +98,15 @@ class Usage:
 
 
 def handle_rate_limit(e):
-    reset = int(e.headers["x-ratelimit-reset"])
-    wait_time_seconds = reset - int(time.time())
-    print(f'waiting {wait_time_seconds} seconds')
-    time.sleep(wait_time_seconds)
+    if "Retry-After" in e.headers:
+        wait_seconds = int(e.headers["Retry-After"])
+        print(f'waiting {wait_seconds} seconds')
+        time.sleep(wait_seconds)
+    elif "x-ratelimit-reset" in e.headers:
+        reset = int(e.headers["x-ratelimit-reset"])
+        wait_time_seconds = reset - int(time.time())
+        print(f'waiting {wait_time_seconds} seconds')
+        time.sleep(wait_time_seconds)
 
 
 if __name__ == '__main__':
