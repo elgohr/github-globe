@@ -59,8 +59,9 @@ def collect(gh_token, geo_token, user):
                                 print("ignoring:" + location)
                         if location in geo_locations and geo_locations[location] is not None:
                             geo_location = geo_locations[location]
-                            u = Usage(user_name, location, geo_location.latitude, geo_location.longitude)
-                            location_details.add(u)
+                            if hasattr(geo_location, 'latitude') and hasattr(geo_location, 'longitude'):
+                                u = Usage(user_name, location, geo_location.latitude, geo_location.longitude)
+                                location_details.add(u)
 
     features = []
     for usage in location_details:
