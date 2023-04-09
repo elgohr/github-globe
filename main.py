@@ -9,20 +9,14 @@ from github_dependents_info import GithubDependentsInfo
 
 
 def collect(gh_token, geo_token, user):
-    gh = Github(login_or_token=gh_token)
-    nn = TomTom(api_key=geo_token)
-    base_user = get_user(gh, user)
-    repos = get_repos(base_user)
-
     geo_locations = {}
     user_locations = {}
-    location_details = set()
 
     if os.path.exists("global_usage.json"):
         with open("global_usage.json", 'r') as data_file:
             features = FeatureCollection(loads(data_file.read())).get("features")
             if features is not None:
-                for feature in features:
+                for feature in features.features:
                     properties = feature.get("properties")
                     if properties is not None:
                         name = properties.get("name")
@@ -34,6 +28,13 @@ def collect(gh_token, geo_token, user):
                                 coordinates = geo.get("coordinates")
                                 if len(coordinates) == 2:
                                     geo_locations[name] = Point((coordinates[0], coordinates[1]))
+
+    gh = Github(login_or_token=gh_token)
+    nn = TomTom(api_key=geo_token)
+    base_user = get_user(gh, user)
+    repos = get_repos(base_user)
+
+    location_details = set()
 
     for repo in repos:
         print("checking: " + repo.name)
