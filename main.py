@@ -27,7 +27,7 @@ def collect(gh_token, geo_token, user):
                             if geo is not None:
                                 coordinates = geo.get("coordinates")
                                 if len(coordinates) == 2:
-                                    geo_locations[name] = Point((coordinates[0], coordinates[1]))
+                                    geo_locations[location] = Point((coordinates[0], coordinates[1]))
 
     gh = Github(login_or_token=gh_token)
     nn = TomTom(api_key=geo_token)
