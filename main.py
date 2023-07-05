@@ -1,6 +1,7 @@
 import os
 import time
 
+import staticmaps
 from geojson import Point, Feature, dumps, FeatureCollection, loads
 from geopy import TomTom
 from geopy.exc import GeopyError
@@ -75,6 +76,27 @@ def collect(gh_token, geo_token, user):
         data_file.write(dumps(FeatureCollection(features)))
 
 
+def create_map():
+    context = staticmaps.Context()
+    context.set_tile_provider(staticmaps.tile_provider_StamenTonerLite)
+
+    if os.path.exists("global_usage.json"):
+        with open("global_usage.json") as data_file:
+            features = FeatureCollection(loads(data_file.read())).get("features")
+            if features is not None:
+                for feature in features.features:
+                    geo = feature.get("geometry")
+                    if geo is not None:
+                        coordinates = geo.get("coordinates")
+                        if len(coordinates) == 2:
+                            loc = staticmaps.create_latlng(coordinates[1], coordinates[0])
+                            context.add_object(staticmaps.Marker(loc, color=staticmaps.GREEN, size=4))
+
+        svg_image = context.render_svg(2048, 1024)
+        with open("global_usage.svg", "w", encoding="utf-8") as f:
+            svg_image.write(f, pretty=True)
+
+
 def get_repos(base_user):
     try:
         return base_user.get_repos()
@@ -117,3 +139,4 @@ def handle_rate_limit(e):
 
 if __name__ == '__main__':
     collect(os.getenv('GH_TOKEN'), os.getenv('TOM_TOM_TOKEN'), os.getenv('GH_USER'))
+    create_map()

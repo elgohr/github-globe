@@ -8,8 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    strategy:
-      max-parallel: 1
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4

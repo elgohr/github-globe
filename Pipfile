@@ -9,6 +9,7 @@ github-dependents-info = "*"
 pygithub = "*"
 geopy = "*"
 geojson = "*"
+py-staticmaps = "*"
 
 [dev-packages]
 
