@@ -28,4 +28,5 @@ jobs:
           git config --global user.email 'noreply@gohr.digital'
           git add .
           git commit -m ":arrow_up: Updated Map"
+          git pull -r
           git push
