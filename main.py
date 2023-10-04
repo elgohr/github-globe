@@ -78,7 +78,7 @@ def collect(gh_token, geo_token, user):
 
 def create_map():
     context = staticmaps.Context()
-    context.set_tile_provider(staticmaps.tile_provider_StamenTonerLite)
+    context.set_tile_provider(staticmaps.tile_provider_OSM)
 
     if os.path.exists("global_usage.json"):
         with open("global_usage.json") as data_file:
