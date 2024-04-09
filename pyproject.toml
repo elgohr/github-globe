@@ -1,0 +1,20 @@
+[project]
+name = "github-globe"
+version = "0.1.0"
+authors = [
+    { name = "Lars Gohr", email = "lars@gohr.digital" }
+]
+dependencies = [
+    "requests>=2.31.0",
+    "github-dependents-info>=1.6.3",
+    "pygithub>=2.3.0",
+    "geopy>=2.4.1",
+    "geojson>=3.1.0",
+    "py-staticmaps>=0.4.0",
+]
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
