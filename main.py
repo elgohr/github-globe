@@ -28,6 +28,7 @@ def collect(gh_token, geo_token, user):
                             if geo is not None:
                                 coordinates = geo.get("coordinates")
                                 if len(coordinates) == 2:
+                                    print("caching location: " + location)
                                     geo_locations[location] = Point((coordinates[0], coordinates[1]))
 
     gh = Github(login_or_token=gh_token)
@@ -35,14 +36,14 @@ def collect(gh_token, geo_token, user):
     base_user = get_user(gh, user)
     repos = get_repos(base_user)
 
-    location_details = set()
-
+    features = []
     for repo in repos:
-        print("checking: " + repo.name)
+        print("checking repository: " + repo.name)
         gh_deps_info = GithubDependentsInfo(repo.full_name)
         gh_deps_info.collect()
         for package in gh_deps_info.packages:
             for dependent in package["public_dependents"]:
+                print("checking dependency: " + dependent)
                 user_name = dependent["name"].split("/")[0]
                 location = ""
                 if user_name in user_locations:
@@ -61,16 +62,11 @@ def collect(gh_token, geo_token, user):
                         if location in geo_locations and geo_locations[location] is not None:
                             geo_location = geo_locations[location]
                             if hasattr(geo_location, 'latitude') and hasattr(geo_location, 'longitude'):
-                                u = Usage(user_name, location, geo_location.latitude, geo_location.longitude)
-                                location_details.add(u)
-
-    features = []
-    for usage in location_details:
-        p = Point((usage.longitude, usage.latitude))
-        features.append(Feature(geometry=p, properties={
-            "name": usage.name,
-            "location": usage.location,
-        }))
+                                print("adding: " + user_name)
+                                features.append(Feature(
+                                    geometry=Point((geo_location.longitude, geo_location.latitude)),
+                                    properties={"name": user_name, "location": location},
+                                ))
 
     with open("global_usage.json", 'w') as data_file:
         data_file.write(dumps(FeatureCollection(features)))
@@ -111,14 +107,6 @@ def get_user(gh, user):
     except RateLimitExceededException as e:
         handle_rate_limit(e)
         return get_user(gh, user)
-
-
-class Usage:
-    def __init__(self, name, location, latitude, longitude):
-        self.name = name
-        self.location = location
-        self.latitude = latitude
-        self.longitude = longitude
 
 
 def handle_rate_limit(e):
