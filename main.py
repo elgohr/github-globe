@@ -36,7 +36,7 @@ def collect(gh_token, geo_token, user):
     base_user = get_user(gh, user)
     repos = get_repos(base_user)
 
-    features = []
+    features = {}
     for repo in repos:
         print("checking repository: " + repo.name)
         gh_deps_info = GithubDependentsInfo(repo.full_name)
@@ -63,13 +63,13 @@ def collect(gh_token, geo_token, user):
                             geo_location = geo_locations[location]
                             if hasattr(geo_location, 'latitude') and hasattr(geo_location, 'longitude'):
                                 print("adding: " + user_name)
-                                features.append(Feature(
+                                features[user_name] = Feature(
                                     geometry=Point((geo_location.longitude, geo_location.latitude)),
                                     properties={"name": user_name, "location": location},
-                                ))
+                                )
 
     with open("global_usage.json", 'w') as data_file:
-        data_file.write(dumps(FeatureCollection(features)))
+        data_file.write(dumps(FeatureCollection(list(features.values()))))
 
 
 def create_map():
