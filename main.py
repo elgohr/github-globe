@@ -43,7 +43,7 @@ def collect(gh_token, geo_token, user):
         gh_deps_info.collect()
         for package in gh_deps_info.packages:
             for dependent in package["public_dependents"]:
-                print("checking dependency: " + dependent)
+                print("checking dependency: " + dependent["name"])
                 user_name = dependent["name"].split("/")[0]
                 location = ""
                 if user_name in user_locations:
