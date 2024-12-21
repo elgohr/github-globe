@@ -45,6 +45,8 @@ def collect(gh_token, geo_token, user):
             for dependent in package["public_dependents"]:
                 print("checking dependency: " + dependent["name"])
                 user_name = dependent["name"].split("/")[0]
+                if user_name in features:
+                    continue
                 location = ""
                 if user_name in user_locations:
                     location = user_locations[user_name]
