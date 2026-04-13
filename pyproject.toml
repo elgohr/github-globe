@@ -9,7 +9,7 @@ dependencies = [
     "github-dependents-info>=1.6.3",
     "pygithub>=2.3.0",
     "geopy>=2.4.1",
-    "geojson>=3.1.0",
+    "geojson>=3.2.0",
     "py-staticmaps>=0.4.0",
 ]
 readme = "README.md"
