@@ -6,7 +6,7 @@ authors = [
 ]
 dependencies = [
     "requests>=2.34.2",
-    "github-dependents-info>=1.6.3",
+    "github-dependents-info>=3.2.1",
     "pygithub>=2.9.1",
     "geopy>=2.4.1",
     "geojson>=3.3.0",
