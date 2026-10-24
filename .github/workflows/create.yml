@@ -22,6 +22,7 @@ jobs:
           GH_TOKEN: ${{ secrets.TOKEN }}
           TOM_TOM_TOKEN: ${{ secrets.TOM_TOM_TOKEN }}
           GH_USER: elgohr
+          PYTHONUNBUFFERED: true # streaming output directly
       - name: Commit new map
         run: |
           git config --global user.name 'Globe Bot'
