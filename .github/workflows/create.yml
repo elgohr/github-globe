@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e
       - name: Create map
-        run: python main.py
+        run: uv run --frozen main.py
         env:
           GH_TOKEN: ${{ secrets.TOKEN }}
           TOM_TOM_TOKEN: ${{ secrets.TOM_TOM_TOKEN }}
