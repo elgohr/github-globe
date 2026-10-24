@@ -1,7 +1,6 @@
-import os
-import time
-
-import staticmaps
+from os import path, getenv
+from time import sleep, time
+from staticmaps import Context, tile_provider_OSM, create_latlng, Marker, GREEN
 from geojson import Point, Feature, dumps, FeatureCollection, loads
 from geopy import TomTom
 from geopy.exc import GeopyError
@@ -13,7 +12,7 @@ def collect(gh_token, geo_token, user):
     geo_locations = {}
     user_locations = {}
 
-    if os.path.exists("global_usage.json"):
+    if path.exists("global_usage.json"):
         with open("global_usage.json", 'r') as data_file:
             features = FeatureCollection(loads(data_file.read())).get("features")
             if features is not None:
@@ -75,10 +74,10 @@ def collect(gh_token, geo_token, user):
 
 
 def create_map():
-    context = staticmaps.Context()
-    context.set_tile_provider(staticmaps.tile_provider_OSM)
+    context = Context()
+    context.set_tile_provider(tile_provider_OSM)
 
-    if os.path.exists("global_usage.json"):
+    if path.exists("global_usage.json"):
         with open("global_usage.json") as data_file:
             features = FeatureCollection(loads(data_file.read())).get("features")
             if features is not None:
@@ -87,8 +86,8 @@ def create_map():
                     if geo is not None:
                         coordinates = geo.get("coordinates")
                         if len(coordinates) == 2:
-                            loc = staticmaps.create_latlng(coordinates[1], coordinates[0])
-                            context.add_object(staticmaps.Marker(loc, color=staticmaps.GREEN, size=4))
+                            loc = create_latlng(coordinates[1], coordinates[0])
+                            context.add_object(Marker(loc, color=GREEN, size=4))
 
         svg_image = context.render_svg(2048, 1024)
         with open("global_usage.svg", "w", encoding="utf-8") as f:
@@ -117,16 +116,16 @@ def handle_rate_limit(e):
         if wait_seconds < 1:
             wait_seconds = 1
         print(f'waiting {wait_seconds} seconds')
-        time.sleep(wait_seconds)
+        sleep(wait_seconds)
     elif "x-ratelimit-reset" in e.headers:
         reset = int(e.headers["x-ratelimit-reset"])
-        wait_time_seconds = reset - int(time.time()) + 5
+        wait_time_seconds = reset - int(time()) + 5
         if wait_time_seconds < 1:
             wait_time_seconds = 1
         print(f'waiting {wait_time_seconds} seconds')
-        time.sleep(wait_time_seconds)
+        sleep(wait_time_seconds)
 
 
 if __name__ == '__main__':
-    collect(os.getenv('GH_TOKEN'), os.getenv('TOM_TOM_TOKEN'), os.getenv('GH_USER'))
+    collect(getenv('GH_TOKEN'), getenv('TOM_TOM_TOKEN'), getenv('GH_USER'))
     create_map()

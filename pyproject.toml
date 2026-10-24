@@ -13,8 +13,7 @@ dependencies = [
     "py-staticmaps>=0.5.0",
 ]
 readme = "README.md"
-requires-python = ">= 3.13"
+requires-python = ">= 3.11"
 
-[tool.rye]
+[tool.uv]
 managed = true
-dev-dependencies = []
