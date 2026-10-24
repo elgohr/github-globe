@@ -1,10 +1,10 @@
 from os import path, getenv
 from time import sleep, time
 from staticmaps import Context, tile_provider_OSM, create_latlng, Marker, GREEN
-from geojson import Point, Feature, dumps, FeatureCollection, loads
+from geojson import Point, Feature, FeatureCollection, loads, dumps
 from geopy import TomTom
 from geopy.exc import GeopyError
-from github import Github, RateLimitExceededException
+from github import Github, Auth, RateLimitExceededException
 from github_dependents_info import GithubDependentsInfo
 
 
@@ -14,9 +14,9 @@ def collect(gh_token, geo_token, user):
 
     if path.exists("global_usage.json"):
         with open("global_usage.json", 'r') as data_file:
-            features = FeatureCollection(loads(data_file.read())).get("features")
+            features = loads(data_file.read()).get("features")
             if features is not None:
-                for feature in features.features:
+                for feature in features:
                     properties = feature.get("properties")
                     if properties is not None:
                         name = properties.get("name")
@@ -30,7 +30,7 @@ def collect(gh_token, geo_token, user):
                                     print("caching location: " + location)
                                     geo_locations[location] = Point((coordinates[0], coordinates[1]))
 
-    gh = Github(login_or_token=gh_token)
+    gh = Github(auth=Auth.Token(gh_token))
     nn = TomTom(api_key=geo_token)
     base_user = get_user(gh, user)
     repos = get_repos(base_user)
@@ -79,9 +79,9 @@ def create_map():
 
     if path.exists("global_usage.json"):
         with open("global_usage.json") as data_file:
-            features = FeatureCollection(loads(data_file.read())).get("features")
+            features = loads(data_file.read()).get("features")
             if features is not None:
-                for feature in features.features:
+                for feature in features:
                     geo = feature.get("geometry")
                     if geo is not None:
                         coordinates = geo.get("coordinates")
